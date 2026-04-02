@@ -220,11 +220,15 @@ function renderShop() {
     });
 }
 
-function goHome() { stopTimer(); document.getElementById('gameContainer').classList.add('hidden'); document.getElementById('rewardOverlay').classList.add('hidden'); document.getElementById('levelSelectOverlay').classList.add('hidden'); document.getElementById('menuOverlay').classList.remove('hidden'); updateStats(); }
+function goHome() { 
+    stopTimer(); 
+    document.querySelectorAll('.overlay').forEach(ov => ov.classList.add('hidden')); 
+    document.getElementById('menuOverlay').classList.remove('hidden'); 
+    updateStats(); 
+}
 
 function startGame() {
-    document.getElementById('menuOverlay').classList.add('hidden');
-    document.getElementById('levelSelectOverlay').classList.add('hidden');
+    document.querySelectorAll('.overlay').forEach(ov => ov.classList.add('hidden'));
     document.getElementById('gameContainer').classList.remove('hidden');
     generateMaze();
 }
@@ -395,11 +399,13 @@ document.addEventListener("touchmove", (e) => {
 }, { passive: false });
 
 document.addEventListener("touchend", (e) => {
-    if (document.getElementById('gameContainer').classList.contains('hidden') ||
-        !document.getElementById('menuOverlay').classList.contains('hidden') ||
-        !document.getElementById('rewardOverlay').classList.contains('hidden') ||
-        !document.getElementById('shopOverlay').classList.contains('hidden') ||
-        !document.getElementById('levelSelectOverlay').classList.contains('hidden')) return;
+    const isGameVisible = !document.getElementById('gameContainer').classList.contains('hidden');
+    const isMenuOpen = !document.getElementById('menuOverlay').classList.contains('hidden');
+    const isShopOpen = !document.getElementById('shopOverlay').classList.contains('hidden');
+    const isMapOpen = !document.getElementById('levelSelectOverlay').classList.contains('hidden');
+    const isRewardOpen = !document.getElementById('rewardOverlay').classList.contains('hidden');
+
+    if (!isGameVisible || isMenuOpen || isShopOpen || isMapOpen || isRewardOpen) return;
 
     let dx = e.changedTouches[0].clientX - startX;
     let dy = e.changedTouches[0].clientY - startY;
