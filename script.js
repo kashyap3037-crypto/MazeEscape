@@ -383,8 +383,14 @@ document.addEventListener("touchstart", (e) => {
 }, { passive: false });
 
 document.addEventListener("touchmove", (e) => {
-    if (!document.getElementById('gameContainer').classList.contains('hidden')) {
-        e.preventDefault(); // Stop scrolling while playing
+    const isGameActive = !document.getElementById('gameContainer').classList.contains('hidden');
+    const anyOverlayOpen = !document.getElementById('menuOverlay').classList.contains('hidden') || 
+                          !document.getElementById('shopOverlay').classList.contains('hidden') ||
+                          !document.getElementById('levelSelectOverlay').classList.contains('hidden') ||
+                          !document.getElementById('rewardOverlay').classList.contains('hidden');
+
+    if (isGameActive && !anyOverlayOpen) {
+        e.preventDefault(); // Only block scrolling when actually playing
     }
 }, { passive: false });
 
