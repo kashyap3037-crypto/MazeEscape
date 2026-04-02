@@ -257,13 +257,6 @@ body.theme-cyber {
     box-shadow: 0 4px 15px rgba(251, 191, 36, 0.1);
 }
 
-.nav-title {
-    font-size: 1.25rem;
-    font-weight: 900;
-    color: var(--primary);
-    margin: 0;
-    letter-spacing: -0.5px;
-}
 
 .game-logo {
     font-size: clamp(3rem, 10vw, 4.5rem);

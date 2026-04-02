@@ -222,7 +222,7 @@ function renderShop() {
 
 function goHome() { stopTimer(); document.getElementById('gameContainer').classList.add('hidden'); document.getElementById('rewardOverlay').classList.add('hidden'); document.getElementById('levelSelectOverlay').classList.add('hidden'); document.getElementById('menuOverlay').classList.remove('hidden'); updateStats(); }
 
-function startGame(fromMap = false) {
+function startGame() {
     document.getElementById('menuOverlay').classList.add('hidden');
     document.getElementById('levelSelectOverlay').classList.add('hidden');
     document.getElementById('gameContainer').classList.remove('hidden');
@@ -372,41 +372,44 @@ function checkWin() {
     }
 }
 
-
-// 📱 IMPROVED SWIPE CONTROLS
+// 📱 IMPROVED FULL-SCREEN SWIPE CONTROLS
 let startX = 0, startY = 0;
 const minDistance = 30; // Minimum swipe distance in px
 
-canvas.addEventListener("touchstart", (e) => {
+document.addEventListener("touchstart", (e) => {
+    if (document.getElementById('gameContainer').classList.contains('hidden')) return;
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
 }, { passive: false });
 
-canvas.addEventListener("touchmove", (e) => {
-    e.preventDefault(); // Prevent scrolling while playing
+document.addEventListener("touchmove", (e) => {
+    if (!document.getElementById('gameContainer').classList.contains('hidden')) {
+        e.preventDefault(); // Stop scrolling while playing
+    }
 }, { passive: false });
 
-canvas.addEventListener("touchend", (e) => {
-    if (!document.getElementById('gameContainer').classList.contains('hidden') &&
-        document.getElementById('menuOverlay').classList.contains('hidden') &&
-        document.getElementById('rewardOverlay').classList.contains('hidden')) {
+document.addEventListener("touchend", (e) => {
+    if (document.getElementById('gameContainer').classList.contains('hidden') ||
+        !document.getElementById('menuOverlay').classList.contains('hidden') ||
+        !document.getElementById('rewardOverlay').classList.contains('hidden') ||
+        !document.getElementById('shopOverlay').classList.contains('hidden') ||
+        !document.getElementById('levelSelectOverlay').classList.contains('hidden')) return;
 
-        let dx = e.changedTouches[0].clientX - startX;
-        let dy = e.changedTouches[0].clientY - startY;
-        let absX = Math.abs(dx);
-        let absY = Math.abs(dy);
+    let dx = e.changedTouches[0].clientX - startX;
+    let dy = e.changedTouches[0].clientY - startY;
+    let absX = Math.abs(dx);
+    let absY = Math.abs(dy);
 
-        if (Math.max(absX, absY) > minDistance) {
-            if (absX > absY) {
-                if (dx > 0) moveUntilWall(0, 1);   // right
-                else moveUntilWall(0, -1);          // left
-            } else {
-                if (dy > 0) moveUntilWall(1, 0);   // down
-                else moveUntilWall(-1, 0);          // up
-            }
+    if (Math.max(absX, absY) > minDistance) {
+        if (absX > absY) {
+            if (dx > 0) moveUntilWall(0, 1);   // right
+            else moveUntilWall(0, -1);          // left
+        } else {
+            if (dy > 0) moveUntilWall(1, 0);   // down
+            else moveUntilWall(-1, 0);          // up
         }
     }
-});
+}, { passive: false });
 
 document.addEventListener("keydown", (e) => {
     if (!document.getElementById('menuOverlay').classList.contains('hidden') || !document.getElementById('rewardOverlay').classList.contains('hidden') || !document.getElementById('shopOverlay').classList.contains('hidden') || !document.getElementById('levelSelectOverlay').classList.contains('hidden')) return;
