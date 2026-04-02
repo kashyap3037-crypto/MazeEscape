@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Maze Escape</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800;900&family=Inter:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- 🏰 HOME PAGE / MAIN MENU -->
+    <div id="menuOverlay" class="overlay">
+        <div class="menu-content title-screen">
+            <!-- Decorative Glow Elements -->
+            <div class="glow-sphere"></div>
+            <div class="glow-sphere-alt"></div>
+
+            <div class="game-nav">
+                <div class="menu-coins">🪙 <span id="menuCoins">0</span></div>
+            </div>
+
+            <div class="hero-section">
+                <h1 class="game-logo">Maze Escape</h1>
+                <p class="hero-subtitle">Think. Move. Escape.</p>
+            </div>
+
+            <div class="controls difficulty-grid">
+                <button onclick="setDifficulty('easy')" class="diff-btn">Easy</button>
+                <button onclick="setDifficulty('medium')" class="diff-btn active">Medium</button>
+                <button onclick="setDifficulty('hard')" class="diff-btn">Hard</button>
+            </div>
+
+            <div class="action-buttons">
+                <button id="playBtn" onclick="startGame()" class="glow-play">▶ START GAME</button>
+                <div class="secondary-btns">
+                    <button onclick="openLevelMap()" class="nav-btn">🗺️ Levels</button>
+                    <button onclick="openShop()" class="nav-btn">🎒 Shop</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🗺️ LEVEL MAP OVERLAY -->
+    <div id="levelSelectOverlay" class="overlay hidden">
+        <div class="menu-content map-overlay-content">
+            <div class="game-nav">
+                <button onclick="closeLevelMap()" class="settings-btn"
+                    style="background: none; border: none; font-size: 1.5rem;">✖️</button>
+            </div>
+            <h1 style="font-size: 2.2rem; margin-bottom: 5px; font-weight: 900;">🗺️ Level Map</h1>
+            <p class="instruction" style="opacity: 0.6;">Choose your challenge</p>
+            <div id="levelMapContainer" class="level-map">
+                <!-- Levels will be injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎒 DEDICATED SHOP PAGE -->
+    <div id="shopOverlay" class="overlay hidden">
+        <div class="menu-content shop-overlay-content">
+            <div class="game-nav">
+                <div class="menu-coins">🪙 <span id="shopCoins">0</span></div>
+                <button onclick="closeShop()" class="settings-btn"
+                    style="background: none; border: none; font-size: 1.5rem;">✖️</button>
+            </div>
+            <h1 style="font-size: 2.2rem; margin-bottom: 5px; font-weight: 900;">🎒 Shop</h1>
+            <p class="instruction" style="opacity: 0.6;">Customize your experience</p>
+
+            <div class="shop-container">
+                <div class="shop-tabs">
+                    <button onclick="switchTab('icons')" id="tabIcon">🚀 Skins</button>
+                    <button onclick="switchTab('skins')" id="tabSkin">🧱 Blocks</button>
+                    <button onclick="switchTab('themes')" id="tabTheme">🎨 Themes</button>
+                    <button onclick="switchTab('goals')" id="tabGoal">🏁 Goals</button>
+                </div>
+                <div id="shopItems" class="shop-grid">
+                    <!-- Items will be injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✨ REWARD PAGE -->
+    <div id="rewardOverlay" class="overlay hidden">
+        <div class="menu-content reward-content">
+            <h1 class="nav-title" style="font-size: 2.5rem; margin-bottom: 10px;">🏆 Level Won!</h1>
+            <div id="rewardStars" class="reward-stars">⭐⭐⭐</div>
+
+            <div class="reward-stats"
+                style="background: rgba(255,255,255,0.03); border-radius: 20px; padding: 25px; margin-bottom: 30px;">
+                <div class="reward-stat">
+                    <span>Base Win</span>
+                    <span id="rewardBaseWin" class="stat-value">🪙 10</span>
+                </div>
+                <div class="reward-stat">
+                    <span>Speed Bonus</span>
+                    <span id="rewardSpeedBonus" class="stat-value">🪙 0</span>
+                </div>
+                <div class="reward-stat">
+                    <span>Step Bonus</span>
+                    <span id="rewardStepBonus" class="stat-value">🪙 0</span>
+                </div>
+                <div class="reward-stat"
+                    style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 12px; padding-top: 12px;">
+                    <span style="font-weight: 900; font-size: 1.1rem;">Total Level Coins</span>
+                    <span id="rewardCoins" class="stat-value" style="color: #fbbf24; font-size: 1.3rem;">🪙 0</span>
+                </div>
+            </div>
+            <button id="nextLevelBtn" onclick="nextLevel()"
+                style="width: 100%; padding: 20px; font-size: 1.2rem; background: #22c55e; border: none; border-radius: 18px; box-shadow: 0 10px 20px rgba(34,197,94,0.3);">Next
+                Level 🚀</button>
+        </div>
+    </div>
+
+    <!-- 🎮 MAIN GAME AREA -->
+    <div id="gameContainer" class="container-full hidden">
+        <nav class="game-nav">
+            <button onclick="goHome()" class="nav-btn">🏠 Home</button>
+            <h1 class="nav-title">Maze Escape</h1>
+            <button onclick="openShop()" class="nav-btn">🎨 Shop</button>
+        </nav>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">Lvl</span>
+                <div id="levelDisplay" class="stat-value">1</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Time ⏱</span>
+                <div id="timerDisplay" class="stat-value">00:00</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Steps 👣</span>
+                <div id="stepsDisplay" class="stat-value">0</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Score</span>
+                <div id="scoreDisplay" class="stat-value">0</div>
+            </div>
+            <div class="stat-item" style="grid-column: span 2;">
+                <span class="stat-label">Wallet 🪙</span>
+                <div id="coinsDisplay" class="stat-value" style="color: #fbbf24;">0</div>
+            </div>
+        </div>
+
+        <canvas id="mazeCanvas"></canvas>
+
+        <div class="controls">
+            <button onclick="restartLevel()">🔄 Reset</button>
+            <button onclick="prevLevel()">⬅️ Previous</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
