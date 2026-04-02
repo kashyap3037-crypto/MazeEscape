@@ -108,6 +108,7 @@ const stepsDisplay = document.getElementById("stepsDisplay");
 
 let rows = 15, cols = 15, size = 30;
 let maze = [];
+let visualPlayer = { x: 1, y: 1 }; // For smooth interpolation
 
 const configs = {
     easy: { baseSize: 9, shortcuts: 0.15, seedShift: 1000 },
@@ -237,7 +238,7 @@ function updateStats() {
 
 function startTimer() { if (timerRunning) return; timerRunning = true; timerInterval = setInterval(() => { timeElapsed++; let mins = String(Math.floor(timeElapsed / 60)).padStart(2, '0'); let secs = String(timeElapsed % 60).padStart(2, '0'); if (timerDisplay) timerDisplay.innerText = `${mins}:${secs}`; }, 1000); }
 function stopTimer() { clearInterval(timerInterval); timerInterval = null; timerRunning = false; }
-function restartLevel() { stopTimer(); timeElapsed = 0; movesCount = 0; player = { x: 1, y: 1 }; playerPath = [{ x: 1, y: 1 }]; if (timerDisplay) timerDisplay.innerText = "00:00"; updateStats(); drawMaze(); }
+function restartLevel() { stopTimer(); timeElapsed = 0; movesCount = 0; player = { x: 1, y: 1 }; visualPlayer = { x: 1, y: 1 }; playerPath = [{ x: 1, y: 1 }]; if (timerDisplay) timerDisplay.innerText = "00:00"; updateStats(); drawMaze(); }
 function prevLevel() { if (progress[difficultySetting].level > 1) { progress[difficultySetting].level--; generateMaze(); } }
 
 function generateMaze() {
@@ -260,7 +261,58 @@ function generateMaze() {
     }
     walk(1, 1);
     for (let i = 1; i < rows - 1; i++) { for (let j = 1; j < cols - 1; j++) { if (maze[i][j] === 1 && seededRandom() < config.shortcuts) maze[i][j] = 0; } }
-    maze[1][1] = 0; maze[rows - 2][cols - 2] = 0; player = { x: 1, y: 1 }; playerPath = [{ x: 1, y: 1 }]; updateStats(); drawMaze();
+    maze[1][1] = 0; maze[rows - 2][cols - 2] = 0; player = { x: 1, y: 1 }; visualPlayer = { x: 1, y: 1 }; playerPath = [{ x: 1, y: 1 }]; updateStats(); drawMaze();
+}
+
+function handleMove(nx, ny) {
+    if (nx >= 0 && ny >= 0 && nx < rows && ny < cols && maze[nx][ny] === 0) {
+        startTimer();
+        if (playerPath.length > 1 && playerPath[playerPath.length - 2].x === nx && playerPath[playerPath.length - 2].y === ny) {
+            playerPath.pop();
+        } else {
+            playerPath.push({ x: nx, y: ny });
+        }
+        player.x = nx;
+        player.y = ny;
+        movesCount++;
+        updateStats();
+        checkWin();
+        return true;
+    }
+    return false;
+}
+
+function moveUntilWall(dx, dy) {
+    let moved = false;
+    let keepMoving = true;
+    
+    while (keepMoving) {
+        let nx = player.x + dx;
+        let ny = player.y + dy;
+        
+        if (nx >= 0 && ny >= 0 && nx < rows && ny < cols && maze[nx][ny] === 0) {
+            handleMove(nx, ny);
+            moved = true;
+            
+            // Junction detection: Stop if there are other ways to go
+            let availableWays = 0;
+            const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+            for (let [idx, idy] of directions) {
+                let tx = player.x + idx;
+                let ty = player.y + idy;
+                if (tx >= 0 && ty >= 0 && tx < rows && ty < cols && maze[tx][ty] === 0) {
+                    availableWays++;
+                }
+            }
+            
+            // If it's a junction (more than 2 ways: the way we came and at least 2 more)
+            // or if it's a dead end, we stop.
+            if (availableWays > 2) keepMoving = false;
+        } else {
+            keepMoving = false;
+        }
+    }
+    return moved;
 }
 
 function drawMaze() {
@@ -289,7 +341,12 @@ function drawMaze() {
     const ics = { default: { path: '#409185', dot: '#66e1c8' }, leaf: { path: '#22c55e', dot: '#4ade80' }, butterfly: { path: '#ec4899', dot: '#f472b6' }, sun: { path: '#eab308', dot: '#fde047' }, star: { path: '#fbbf24', dot: '#fcd34d' }, spark: { path: '#94a3b8', dot: '#ffffff' }, robot: { path: '#475569', dot: '#94a3b8' }, ghost: { path: '#64748b', dot: 'rgba(255, 255, 255, 0.7)' }, diamond: { path: '#0891b2', dot: '#22d3ee' }, fire: { path: '#dc2626', dot: '#ef4444' }, ice: { path: '#0ea5e9', dot: '#bae6fd' }, alien: { path: '#16a34a', dot: '#4ade80' }, galaxy: { path: '#3730a3', dot: '#4338ca' }, crown: { path: '#ca8a04', dot: '#facc15' }, phoenix: { path: '#991b1b', dot: '#ef4444' } };
     const st = ics[currentIcon] || ics.default; if (playerPath.length > 1) { ctx.beginPath(); ctx.lineJoin = "round"; ctx.lineCap = "round"; ctx.strokeStyle = st.path; ctx.lineWidth = size * 0.4; ctx.moveTo(playerPath[0].y * size + size / 2, playerPath[0].x * size + size / 2); for (let k = 1; k < playerPath.length; k++) ctx.lineTo(playerPath[k].y * size + size / 2, playerPath[k].x * size + size / 2); ctx.stroke(); ctx.fillStyle = st.dot; for (let n of playerPath) { ctx.beginPath(); ctx.arc(n.y * size + size / 2, n.x * size + size / 2, size * 0.1, 0, Math.PI * 2); ctx.fill(); } }
     const gx = (cols - 2) * size, gy = (rows - 2) * size; const gi = shopItems.goals.find(it => it.id === currentGoal); const ge = gi ? gi.preview : '🟡'; ctx.textAlign = "center"; ctx.textBaseline = "middle"; let p = 1 + Math.sin(Date.now() / 200) * 0.05; ctx.font = `${size * 0.7 * p}px Arial`; ctx.fillText(ge, gx + size / 2, gy + size / 2);
-    const ii = shopItems.icons.find(it => it.id === currentIcon); const pe = ii ? ii.preview : '⚪'; const px = player.y * size, py = player.x * size; ctx.font = `${size * 0.8}px Arial`; ctx.fillText(pe, px + size / 2, py + size / 2);
+    
+    // Smooth Interpolation
+    visualPlayer.x += (player.x - visualPlayer.x) * 0.3;
+    visualPlayer.y += (player.y - visualPlayer.y) * 0.3;
+
+    const ii = shopItems.icons.find(it => it.id === currentIcon); const pe = ii ? ii.preview : '⚪'; const px = visualPlayer.y * size, py = visualPlayer.x * size; ctx.font = `${size * 0.8}px Arial`; ctx.fillText(pe, px + size / 2, py + size / 2);
 }
 
 function nextLevel() {
@@ -315,58 +372,49 @@ function checkWin() {
     }
 }
 
-document.addEventListener("keydown", (e) => {
-    // 📱 SWIPE CONTROLS
-    let startX = 0, startY = 0;
 
-    canvas.addEventListener("touchstart", (e) => {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-    });
+// 📱 IMPROVED SWIPE CONTROLS
+let startX = 0, startY = 0;
+const minDistance = 30; // Minimum swipe distance in px
 
-    canvas.addEventListener("touchend", (e) => {
+canvas.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+}, { passive: false });
+
+canvas.addEventListener("touchmove", (e) => {
+    e.preventDefault(); // Prevent scrolling while playing
+}, { passive: false });
+
+canvas.addEventListener("touchend", (e) => {
+    if (!document.getElementById('gameContainer').classList.contains('hidden') && 
+        document.getElementById('menuOverlay').classList.contains('hidden') && 
+        document.getElementById('rewardOverlay').classList.contains('hidden')) {
+        
         let dx = e.changedTouches[0].clientX - startX;
         let dy = e.changedTouches[0].clientY - startY;
+        let absX = Math.abs(dx);
+        let absY = Math.abs(dy);
 
-        let nx = player.x, ny = player.y;
-
-        if (Math.abs(dx) > Math.abs(dy)) {
-            if (dx > 0) ny++;   // right
-            else ny--;          // left
-        } else {
-            if (dy > 0) nx++;   // down
-            else nx--;          // up
-        }
-
-        // SAME LOGIC AS KEYBOARD
-        if (nx >= 0 && ny >= 0 && nx < rows && ny < cols && maze[nx][ny] === 0) {
-            startTimer();
-
-            if (playerPath.length > 1 &&
-                playerPath[playerPath.length - 2].x === nx &&
-                playerPath[playerPath.length - 2].y === ny) {
-                playerPath.pop();
+        if (Math.max(absX, absY) > minDistance) {
+            if (absX > absY) {
+                if (dx > 0) moveUntilWall(0, 1);   // right
+                else moveUntilWall(0, -1);          // left
             } else {
-                playerPath.push({ x: nx, y: ny });
+                if (dy > 0) moveUntilWall(1, 0);   // down
+                else moveUntilWall(-1, 0);          // up
             }
-
-            player.x = nx;
-            player.y = ny;
-            movesCount++;
-
-            updateStats();
-            drawMaze();
-            checkWin();
         }
-    });
-    if (!document.getElementById('menuOverlay').classList.contains('hidden') || !document.getElementById('rewardOverlay').classList.contains('hidden') || !document.getElementById('shopOverlay').classList.contains('hidden') || !document.getElementById('levelSelectOverlay').classList.contains('hidden')) return;
-    let nx = player.x, ny = player.y; if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) { e.preventDefault(); startTimer(); }
-    if (e.key === "ArrowUp") nx--; else if (e.key === "ArrowDown") nx++; else if (e.key === "ArrowLeft") ny--; else if (e.key === "ArrowRight") ny++; else return;
-    if (nx >= 0 && ny >= 0 && nx < rows && ny < cols && maze[nx][ny] === 0) {
-        if (playerPath.length > 1 && playerPath[playerPath.length - 2].x === nx && playerPath[playerPath.length - 2].y === ny) playerPath.pop();
-        else playerPath.push({ x: nx, y: ny });
-        player.x = nx; player.y = ny; movesCount++; updateStats(); drawMaze(); checkWin();
     }
+});
+
+document.addEventListener("keydown", (e) => {
+    if (!document.getElementById('menuOverlay').classList.contains('hidden') || !document.getElementById('rewardOverlay').classList.contains('hidden') || !document.getElementById('shopOverlay').classList.contains('hidden') || !document.getElementById('levelSelectOverlay').classList.contains('hidden')) return;
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) { e.preventDefault(); }
+    if (e.key === "ArrowUp") moveUntilWall(-1, 0); 
+    else if (e.key === "ArrowDown") moveUntilWall(1, 0); 
+    else if (e.key === "ArrowLeft") moveUntilWall(0, -1); 
+    else if (e.key === "ArrowRight") moveUntilWall(0, 1);
 });
 
 function animate() { drawMaze(); requestAnimationFrame(animate); }
