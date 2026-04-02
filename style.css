@@ -595,3 +595,53 @@ body.theme-cyber #mazeCanvas {
         touch-action: none;
     }
 }
+/* ??? MOBILE DIRECTIONAL PAD */
+.mobile-controls {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 25px;
+    user-select: none;
+}
+
+.control-row {
+    display: flex;
+    gap: 8px;
+}
+
+.secondary {
+    margin: 5px 0;
+}
+
+.ctrl-btn {
+    width: 65px;
+    height: 65px;
+    padding: 0 !important;
+    font-size: 1.5rem !important;
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 2px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.ctrl-btn:active {
+    background: #3b82f6 !important;
+    color: white !important;
+    transform: scale(0.9) translateY(2px);
+}
+
+.accent-btn {
+    background: rgba(59, 130, 246, 0.1) !important;
+    border-color: #3b82f6 !important;
+    color: #3b82f6 !important;
+}
+
+@media (max-width: 600px) {
+    .mobile-controls { display: flex; }
+    .desktop-only { display: none !important; }
+}
+

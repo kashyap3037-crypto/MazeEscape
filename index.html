@@ -152,7 +152,22 @@
 
         <canvas id="mazeCanvas"></canvas>
 
-        <div class="controls">
+        <!-- 🕹️ MOBILE DIRECTIONAL PAD -->
+        <div class="mobile-controls">
+            <div class="control-row">
+                <button class="ctrl-btn" onclick="moveUntilWall(-1,0)">▲</button>
+            </div>
+            <div class="control-row secondary">
+                <button class="ctrl-btn" onclick="moveUntilWall(0,-1)">◀</button>
+                <button class="ctrl-btn accent-btn" onclick="restartLevel()">🔄</button>
+                <button class="ctrl-btn" onclick="moveUntilWall(0,1)">▶</button>
+            </div>
+            <div class="control-row">
+                <button class="ctrl-btn" onclick="moveUntilWall(1,0)">▼</button>
+            </div>
+        </div>
+
+        <div class="controls desktop-only">
             <button onclick="restartLevel()">🔄 Reset</button>
             <button onclick="prevLevel()">⬅️ Previous</button>
         </div>

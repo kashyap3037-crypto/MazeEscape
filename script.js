@@ -252,7 +252,11 @@ function generateMaze() {
     currentSeed = (curLevel * 1000) + config.seedShift; // 🎯 DIFFERENT SEED PER DIFFICULTY
 
     rows = config.baseSize + Math.floor((curLevel - 1) * 0.5); cols = config.baseSize + Math.floor((curLevel - 1) * 0.5); if (rows % 2 === 0) rows++; if (cols % 2 === 0) cols++; rows = Math.min(rows, 41); cols = Math.min(cols, 41);
-    const cw = document.getElementById('gameContainer').clientWidth - 40; const mcs = Math.min(cw, 600, window.innerHeight * 0.55); size = Math.floor(mcs / Math.max(rows, cols)); canvas.width = cols * size; canvas.height = rows * size;
+    const cw = document.getElementById('gameContainer').clientWidth - 40; 
+    const mcs = Math.min(cw, 600, window.innerHeight * 0.65); // 🚀 Increased from 0.55 to 0.65 for mobile
+    size = Math.floor(mcs / Math.max(rows, cols)); 
+    canvas.width = cols * size; 
+    canvas.height = rows * size;
     maze = Array.from({ length: rows }, () => Array(cols).fill(1));
 
     function walk(x, y) {
@@ -343,7 +347,24 @@ function drawMaze() {
         }
     }
     const ics = { default: { path: '#409185', dot: '#66e1c8' }, leaf: { path: '#22c55e', dot: '#4ade80' }, butterfly: { path: '#ec4899', dot: '#f472b6' }, sun: { path: '#eab308', dot: '#fde047' }, star: { path: '#fbbf24', dot: '#fcd34d' }, spark: { path: '#94a3b8', dot: '#ffffff' }, robot: { path: '#475569', dot: '#94a3b8' }, ghost: { path: '#64748b', dot: 'rgba(255, 255, 255, 0.7)' }, diamond: { path: '#0891b2', dot: '#22d3ee' }, fire: { path: '#dc2626', dot: '#ef4444' }, ice: { path: '#0ea5e9', dot: '#bae6fd' }, alien: { path: '#16a34a', dot: '#4ade80' }, galaxy: { path: '#3730a3', dot: '#4338ca' }, crown: { path: '#ca8a04', dot: '#facc15' }, phoenix: { path: '#991b1b', dot: '#ef4444' } };
-    const st = ics[currentIcon] || ics.default; if (playerPath.length > 1) { ctx.beginPath(); ctx.lineJoin = "round"; ctx.lineCap = "round"; ctx.strokeStyle = st.path; ctx.lineWidth = size * 0.4; ctx.moveTo(playerPath[0].y * size + size / 2, playerPath[0].x * size + size / 2); for (let k = 1; k < playerPath.length; k++) ctx.lineTo(playerPath[k].y * size + size / 2, playerPath[k].x * size + size / 2); ctx.stroke(); ctx.fillStyle = st.dot; for (let n of playerPath) { ctx.beginPath(); ctx.arc(n.y * size + size / 2, n.x * size + size / 2, size * 0.1, 0, Math.PI * 2); ctx.fill(); } }
+    const st = ics[currentIcon] || ics.default; 
+    if (playerPath.length > 1) { 
+        ctx.beginPath(); 
+        ctx.lineJoin = "round"; 
+        ctx.lineCap = "round"; 
+        ctx.strokeStyle = st.path; 
+        ctx.lineWidth = size * 0.6; // 🚀 Increased from 0.4 to 0.6 for better visibility
+        ctx.moveTo(playerPath[0].y * size + size / 2, playerPath[0].x * size + size / 2); 
+        for (let k = 1; k < playerPath.length; k++) 
+            ctx.lineTo(playerPath[k].y * size + size / 2, playerPath[k].x * size + size / 2); 
+        ctx.stroke(); 
+        ctx.fillStyle = st.dot; 
+        for (let n of playerPath) { 
+            ctx.beginPath(); 
+            ctx.arc(n.y * size + size / 2, n.x * size + size / 2, size * 0.15, 0, Math.PI * 2); 
+            ctx.fill(); 
+        } 
+    }
     const gx = (cols - 2) * size, gy = (rows - 2) * size; const gi = shopItems.goals.find(it => it.id === currentGoal); const ge = gi ? gi.preview : '🟡'; ctx.textAlign = "center"; ctx.textBaseline = "middle"; let p = 1 + Math.sin(Date.now() / 200) * 0.05; ctx.font = `${size * 0.7 * p}px Arial`; ctx.fillText(ge, gx + size / 2, gy + size / 2);
 
     // Smooth Interpolation
