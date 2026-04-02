@@ -285,15 +285,15 @@ function handleMove(nx, ny) {
 function moveUntilWall(dx, dy) {
     let moved = false;
     let keepMoving = true;
-    
+
     while (keepMoving) {
         let nx = player.x + dx;
         let ny = player.y + dy;
-        
+
         if (nx >= 0 && ny >= 0 && nx < rows && ny < cols && maze[nx][ny] === 0) {
             handleMove(nx, ny);
             moved = true;
-            
+
             // Junction detection: Stop if there are other ways to go
             let availableWays = 0;
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
@@ -304,7 +304,7 @@ function moveUntilWall(dx, dy) {
                     availableWays++;
                 }
             }
-            
+
             // If it's a junction (more than 2 ways: the way we came and at least 2 more)
             // or if it's a dead end, we stop.
             if (availableWays > 2) keepMoving = false;
@@ -341,7 +341,7 @@ function drawMaze() {
     const ics = { default: { path: '#409185', dot: '#66e1c8' }, leaf: { path: '#22c55e', dot: '#4ade80' }, butterfly: { path: '#ec4899', dot: '#f472b6' }, sun: { path: '#eab308', dot: '#fde047' }, star: { path: '#fbbf24', dot: '#fcd34d' }, spark: { path: '#94a3b8', dot: '#ffffff' }, robot: { path: '#475569', dot: '#94a3b8' }, ghost: { path: '#64748b', dot: 'rgba(255, 255, 255, 0.7)' }, diamond: { path: '#0891b2', dot: '#22d3ee' }, fire: { path: '#dc2626', dot: '#ef4444' }, ice: { path: '#0ea5e9', dot: '#bae6fd' }, alien: { path: '#16a34a', dot: '#4ade80' }, galaxy: { path: '#3730a3', dot: '#4338ca' }, crown: { path: '#ca8a04', dot: '#facc15' }, phoenix: { path: '#991b1b', dot: '#ef4444' } };
     const st = ics[currentIcon] || ics.default; if (playerPath.length > 1) { ctx.beginPath(); ctx.lineJoin = "round"; ctx.lineCap = "round"; ctx.strokeStyle = st.path; ctx.lineWidth = size * 0.4; ctx.moveTo(playerPath[0].y * size + size / 2, playerPath[0].x * size + size / 2); for (let k = 1; k < playerPath.length; k++) ctx.lineTo(playerPath[k].y * size + size / 2, playerPath[k].x * size + size / 2); ctx.stroke(); ctx.fillStyle = st.dot; for (let n of playerPath) { ctx.beginPath(); ctx.arc(n.y * size + size / 2, n.x * size + size / 2, size * 0.1, 0, Math.PI * 2); ctx.fill(); } }
     const gx = (cols - 2) * size, gy = (rows - 2) * size; const gi = shopItems.goals.find(it => it.id === currentGoal); const ge = gi ? gi.preview : '🟡'; ctx.textAlign = "center"; ctx.textBaseline = "middle"; let p = 1 + Math.sin(Date.now() / 200) * 0.05; ctx.font = `${size * 0.7 * p}px Arial`; ctx.fillText(ge, gx + size / 2, gy + size / 2);
-    
+
     // Smooth Interpolation
     visualPlayer.x += (player.x - visualPlayer.x) * 0.3;
     visualPlayer.y += (player.y - visualPlayer.y) * 0.3;
@@ -387,10 +387,10 @@ canvas.addEventListener("touchmove", (e) => {
 }, { passive: false });
 
 canvas.addEventListener("touchend", (e) => {
-    if (!document.getElementById('gameContainer').classList.contains('hidden') && 
-        document.getElementById('menuOverlay').classList.contains('hidden') && 
+    if (!document.getElementById('gameContainer').classList.contains('hidden') &&
+        document.getElementById('menuOverlay').classList.contains('hidden') &&
         document.getElementById('rewardOverlay').classList.contains('hidden')) {
-        
+
         let dx = e.changedTouches[0].clientX - startX;
         let dy = e.changedTouches[0].clientY - startY;
         let absX = Math.abs(dx);
@@ -411,9 +411,9 @@ canvas.addEventListener("touchend", (e) => {
 document.addEventListener("keydown", (e) => {
     if (!document.getElementById('menuOverlay').classList.contains('hidden') || !document.getElementById('rewardOverlay').classList.contains('hidden') || !document.getElementById('shopOverlay').classList.contains('hidden') || !document.getElementById('levelSelectOverlay').classList.contains('hidden')) return;
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) { e.preventDefault(); }
-    if (e.key === "ArrowUp") moveUntilWall(-1, 0); 
-    else if (e.key === "ArrowDown") moveUntilWall(1, 0); 
-    else if (e.key === "ArrowLeft") moveUntilWall(0, -1); 
+    if (e.key === "ArrowUp") moveUntilWall(-1, 0);
+    else if (e.key === "ArrowDown") moveUntilWall(1, 0);
+    else if (e.key === "ArrowLeft") moveUntilWall(0, -1);
     else if (e.key === "ArrowRight") moveUntilWall(0, 1);
 });
 
