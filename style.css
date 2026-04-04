@@ -673,14 +673,9 @@ body.theme-cyber #mazeCanvas {
 .dash-hud {
     display: none;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
     width: 100%;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 12px 15px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 5px;
+    margin-bottom: 2px;
 }
 
 .hud-row {
@@ -688,6 +683,11 @@ body.theme-cyber #mazeCanvas {
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 6px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hud-item {
@@ -697,16 +697,16 @@ body.theme-cyber #mazeCanvas {
     justify-content: center;
 }
 
-.hud-label { font-size: 0.5rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; }
-.hud-val { font-weight: 900; font-size: 0.9rem; }
+.hud-label { font-size: 0.45rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; }
+.hud-val { font-weight: 900; font-size: 0.8rem; }
 .hud-select { 
-    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;
-    font-size: 0.75rem; color: var(--primary); font-weight: 800; 
-    padding: 5px 10px; outline: none; text-align: center;
+    background: rgba(255, 255, 255, 0.05); border: none; border-radius: 6px;
+    font-size: 0.7rem; color: var(--primary); font-weight: 800; 
+    padding: 3px 6px; outline: none; text-align: center;
 }
 .hud-icon-btn { 
-    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); 
-    border-radius: 12px; padding: 6px; font-size: 1.2rem; filter: saturate(0.8);
+    background: rgba(255, 255, 255, 0.03); border: none; 
+    border-radius: 10px; padding: 4px; font-size: 1.1rem; filter: saturate(0.8);
     transition: transform 0.2s, background 0.2s;
 }
 .hud-icon-btn:active { transform: scale(0.85); background: rgba(255, 255, 255, 0.1); }

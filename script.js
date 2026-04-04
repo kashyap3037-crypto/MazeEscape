@@ -309,9 +309,9 @@ function generateMaze() {
     if (rows % 2 === 0) rows++; if (cols % 2 === 0) cols++; 
     rows = Math.min(rows, 41); cols = Math.min(cols, 41);
 
-    const cw = document.getElementById('gameContainer').clientWidth - 10; 
-    // Increased mcs for a larger maze while keeping it in one frame
-    const mcs = Math.min(cw, 600, window.innerHeight * 0.44); 
+    const cw = document.getElementById('gameContainer').clientWidth - 6; 
+    // MCS: Maximizing for a "Brilliant Large" look on mobile
+    const mcs = Math.min(cw, 600, window.innerHeight * 0.48); 
     size = Math.floor(mcs / Math.max(rows, cols)); 
     if (size < 11) size = 11; 
     
