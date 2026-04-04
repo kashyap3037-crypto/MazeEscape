@@ -417,6 +417,17 @@ button:active {
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.small-nav-btn {
+    padding: 10px 10px !important;
+    font-size: 1rem !important;
+    border-radius: 12px !important;
+    min-height: 40px;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* 🎒 SHOP INTERFACE */
 .common {
     border: 2px solid #9ca3af;

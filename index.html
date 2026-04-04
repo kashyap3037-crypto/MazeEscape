@@ -122,9 +122,15 @@
     <!-- 🎮 MAIN GAME AREA -->
     <div id="gameContainer" class="container-full hidden">
         <nav class="game-nav">
-            <button onclick="goHome()" class="nav-btn">🏠 Home</button>
-            <h1 class="nav-title">Maze Escape</h1>
-            <button onclick="openShop()" class="nav-btn">🎨 Shop</button>
+            <div style="display:flex; gap:5px;">
+                <button onclick="goHome()" class="nav-btn small-nav-btn">🏠</button>
+                <button onclick="restartLevel()" class="nav-btn small-nav-btn">🔄</button>
+            </div>
+            <h1 class="nav-title">Maze</h1>
+            <div style="display:flex; gap:5px;">
+                <button onclick="prevLevel()" class="nav-btn small-nav-btn">⬅️</button>
+                <button onclick="openShop()" class="nav-btn small-nav-btn">🎒</button>
+            </div>
         </nav>
 
         <div class="stats compact-stats">
@@ -150,7 +156,6 @@
             </div>
             <div class="control-row secondary">
                 <button class="ctrl-btn" onclick="movePlayer(0,-1)">◀</button>
-                <button class="ctrl-btn accent-btn" onclick="restartLevel()">🔄</button>
                 <button class="ctrl-btn" onclick="movePlayer(0,1)">▶</button>
             </div>
             <div class="control-row">
@@ -166,8 +171,7 @@
         </div>
 
         <div class="controls desktop-only">
-            <button onclick="restartLevel()">🔄 Reset</button>
-            <button onclick="prevLevel()">⬅️ Previous</button>
+            <!-- Redundant now that they are in nav -->
         </div>
     </div>
 
