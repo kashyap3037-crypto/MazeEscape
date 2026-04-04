@@ -122,15 +122,9 @@
     <!-- 🎮 MAIN GAME AREA -->
     <div id="gameContainer" class="container-full hidden">
         <nav class="game-nav">
-            <div style="display:flex; gap:5px;">
-                <button onclick="goHome()" class="nav-btn small-nav-btn">🏠</button>
-                <button onclick="restartLevel()" class="nav-btn small-nav-btn">🔄</button>
-            </div>
-            <h1 class="nav-title">Maze</h1>
-            <div style="display:flex; gap:5px;">
-                <button onclick="prevLevel()" class="nav-btn small-nav-btn">⬅️</button>
-                <button onclick="openShop()" class="nav-btn small-nav-btn">🎒</button>
-            </div>
+            <button onclick="goHome()" class="nav-btn">🏠 Home</button>
+            <h1 class="nav-title">Maze Escape</h1>
+            <button onclick="openShop()" class="nav-btn">🎨 Shop</button>
         </nav>
 
         <div class="stats compact-stats">
@@ -156,10 +150,15 @@
             </div>
             <div class="control-row secondary">
                 <button class="ctrl-btn" onclick="movePlayer(0,-1)">◀</button>
+                <button class="ctrl-btn accent-btn" onclick="restartLevel()">🔄</button>
                 <button class="ctrl-btn" onclick="movePlayer(0,1)">▶</button>
             </div>
             <div class="control-row">
                 <button class="ctrl-btn" onclick="movePlayer(1,0)">▼</button>
+            </div>
+            <div class="control-row" style="margin-top: 8px; gap: 10px;">
+                <button class="nav-btn-mobile" onclick="restartLevel()">🔄 Reset</button>
+                <button class="nav-btn-mobile" onclick="prevLevel()">⬅️ Prev</button>
             </div>
         </div>
 
@@ -171,7 +170,8 @@
         </div>
 
         <div class="controls desktop-only">
-            <!-- Redundant now that they are in nav -->
+            <button onclick="restartLevel()">🔄 Reset</button>
+            <button onclick="prevLevel()">⬅️ Previous</button>
         </div>
     </div>
 

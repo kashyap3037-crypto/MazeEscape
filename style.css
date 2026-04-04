@@ -417,17 +417,6 @@ button:active {
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.small-nav-btn {
-    padding: 10px 10px !important;
-    font-size: 1rem !important;
-    border-radius: 12px !important;
-    min-height: 40px;
-    min-width: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 /* 🎒 SHOP INTERFACE */
 .common {
     border: 2px solid #9ca3af;
@@ -670,11 +659,21 @@ body.theme-cyber #mazeCanvas {
     padding: 0 !important;
 }
 
+.nav-btn-mobile {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-dim);
+    padding: 10px 20px !important;
+    border-radius: 12px !important;
+    font-size: 0.75rem !important;
+    font-weight: 800 !important;
+}
+
 @media (max-width: 800px) {
     .mobile-controls { 
         display: none; 
-        margin-top: 5px;
-        transform: scale(0.85); /* Slightly scale down for fit */
+        margin-top: 2px;
+        transform: scale(0.8); /* Scale down further to accommodate extra row */
     }
     .mobile-controls.active {
         display: flex;
