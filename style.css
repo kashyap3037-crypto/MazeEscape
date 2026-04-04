@@ -672,16 +672,22 @@ body.theme-cyber #mazeCanvas {
 /* 🚀 DASH HUD (Unified Mobile Navigation + Stats) */
 .dash-hud {
     display: none;
-    grid-template-columns: repeat(7, 1fr);
-    align-items: center;
-    gap: 4px;
+    flex-direction: column;
+    gap: 10px;
     width: 100%;
     background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(10px);
-    border-radius: 16px;
-    padding: 6px 4px;
+    border-radius: 20px;
+    padding: 12px 15px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 5px;
+}
+
+.hud-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
 
 .hud-item {
@@ -691,21 +697,23 @@ body.theme-cyber #mazeCanvas {
     justify-content: center;
 }
 
-.hud-label { font-size: 0.45rem; color: var(--text-dim); text-transform: uppercase; line-height: 1; }
-.hud-val { font-weight: 800; font-size: 0.75rem; }
+.hud-label { font-size: 0.5rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; }
+.hud-val { font-weight: 900; font-size: 0.9rem; }
 .hud-select { 
-    background: transparent; border: none; font-size: 0.6rem; color: var(--primary); font-weight: 800; 
-    padding: 0; outline: none; text-align: center; max-width: 50px;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;
+    font-size: 0.75rem; color: var(--primary); font-weight: 800; 
+    padding: 5px 10px; outline: none; text-align: center;
 }
 .hud-icon-btn { 
-    background: none; border: none; padding: 2px; font-size: 1rem; filter: saturate(0.8);
-    transition: transform 0.2s;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); 
+    border-radius: 12px; padding: 6px; font-size: 1.2rem; filter: saturate(0.8);
+    transition: transform 0.2s, background 0.2s;
 }
-.hud-icon-btn:active { transform: scale(0.85); }
+.hud-icon-btn:active { transform: scale(0.85); background: rgba(255, 255, 255, 0.1); }
 
 @media (max-width: 800px) {
     .game-nav.mobile-hide { display: none !important; }
-    .dash-hud { display: grid; }
+    .dash-hud { display: flex; }
     
     .mobile-controls { 
         display: none; 

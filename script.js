@@ -310,8 +310,8 @@ function generateMaze() {
     rows = Math.min(rows, 41); cols = Math.min(cols, 41);
 
     const cw = document.getElementById('gameContainer').clientWidth - 10; 
-    // MCS prioritizes absolute zero-scrolling
-    const mcs = Math.min(cw, 500, window.innerHeight * 0.4); 
+    // MCS prioritizes absolute zero-scrolling with the new 2-row HUD
+    const mcs = Math.min(cw, 500, window.innerHeight * 0.38); 
     size = Math.floor(mcs / Math.max(rows, cols)); 
     if (size < 9) size = 9; 
     

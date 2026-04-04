@@ -128,19 +128,25 @@
         </nav>
 
         <div class="stats dash-hud">
-            <div class="hud-item"><button onclick="goHome()" class="hud-icon-btn">🏠</button></div>
-            <div class="hud-item"><span class="hud-label">Lvl</span><div id="levelDisplay" class="hud-val">1</div></div>
-            <div class="hud-item"><span class="hud-label">Time</span><div id="timerDisplay" class="hud-val">00:00</div></div>
-            <div class="hud-item"><span class="hud-label">Steps</span><div id="stepsDisplay" class="hud-val">0</div></div>
-            <div class="hud-item"><div id="coinsDisplay" class="hud-val" style="color: #fbbf24;">🪙 0</div></div>
-            <div class="hud-item">
-                <select id="controlModeSelect" onchange="setControlMode(this.value)" class="hud-select">
-                    <option value="swipe">🎮 Swipe</option>
-                    <option value="joystick">🕹️ Joy</option>
-                    <option value="buttons">⌨️ Pad</option>
-                </select>
+            <!-- Row 1: Actions & Level -->
+            <div class="hud-row top-row">
+                <button onclick="goHome()" class="hud-icon-btn">🏠</button>
+                <div class="hud-item"><span class="hud-label">LEVEL</span><div id="levelDisplay" class="hud-val">1</div></div>
+                <div class="hud-item"><div id="coinsDisplay" class="hud-val" style="color: #fbbf24;">🪙 0</div></div>
+                <button onclick="openShop()" class="hud-icon-btn">🎒</button>
             </div>
-            <div class="hud-item"><button onclick="openShop()" class="hud-icon-btn">🎒</button></div>
+            <!-- Row 2: Stats & Controls -->
+            <div class="hud-row bot-row">
+                <div class="hud-item"><span class="hud-label">TIME</span><div id="timerDisplay" class="hud-val">00:00</div></div>
+                <div class="hud-item"><span class="hud-label">STEPS</span><div id="stepsDisplay" class="hud-val">0</div></div>
+                <div class="hud-item">
+                    <select id="controlModeSelect" onchange="setControlMode(this.value)" class="hud-select">
+                        <option value="swipe">🎮 Swipe</option>
+                        <option value="joystick">🕹️ Joy</option>
+                        <option value="buttons">⌨️ Pad</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <canvas id="mazeCanvas"></canvas>
