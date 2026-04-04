@@ -159,12 +159,21 @@
             </div>
             <div class="control-row secondary">
                 <button class="ctrl-btn" onclick="moveUntilWall(0,-1)">◀</button>
-                <button class="ctrl-btn accent-btn" onclick="restartLevel()">🔄</button>
+                <div class="center-controls">
+                    <button class="ctrl-btn micro-btn" onclick="handleMove(player.x-1, player.y)">👆</button>
+                    <div style="display:flex; gap:5px;">
+                        <button class="ctrl-btn micro-btn" onclick="handleMove(player.x, player.y-1)">👈</button>
+                        <button class="ctrl-btn accent-btn" onclick="restartLevel()">🔄</button>
+                        <button class="ctrl-btn micro-btn" onclick="handleMove(player.x, player.y+1)">👉</button>
+                    </div>
+                    <button class="ctrl-btn micro-btn" onclick="handleMove(player.x+1, player.y)">👇</button>
+                </div>
                 <button class="ctrl-btn" onclick="moveUntilWall(0,1)">▶</button>
             </div>
             <div class="control-row">
                 <button class="ctrl-btn" onclick="moveUntilWall(1,0)">▼</button>
             </div>
+            <p style="font-size: 0.6rem; opacity: 0.5; margin-top: 5px;">Arrows: Slide | Symbols: Step</p>
         </div>
 
         <div class="controls desktop-only">

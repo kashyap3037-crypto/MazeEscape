@@ -281,27 +281,64 @@ function generateMaze() {
     stopTimer(); timeElapsed = 0; movesCount = 0; if (timerDisplay) timerDisplay.innerText = "00:00";
     const curLevel = progress[difficultySetting].level;
     const config = configs[difficultySetting];
-    currentSeed = (curLevel * 1000) + config.seedShift; // 🎯 DIFFERENT SEED PER DIFFICULTY
+    currentSeed = (curLevel * 1000) + config.seedShift; 
 
-    rows = config.baseSize + Math.floor((curLevel - 1) * 0.5); cols = config.baseSize + Math.floor((curLevel - 1) * 0.5); if (rows % 2 === 0) rows++; if (cols % 2 === 0) cols++; rows = Math.min(rows, 41); cols = Math.min(cols, 41);
+    rows = config.baseSize + Math.floor((curLevel - 1) * 0.5); 
+    cols = config.baseSize + Math.floor((curLevel - 1) * 0.5); 
+    if (rows % 2 === 0) rows++; if (cols % 2 === 0) cols++; 
+    rows = Math.min(rows, 41); cols = Math.min(cols, 41);
+
     const cw = document.getElementById('gameContainer').clientWidth - 40; 
-    const mcs = Math.min(cw, 600, window.innerHeight * 0.65); // 🚀 Increased from 0.55 to 0.65 for mobile
+    const mcs = Math.min(cw, 600, window.innerHeight * 0.6); 
     size = Math.floor(mcs / Math.max(rows, cols)); 
+    if (size < 10) size = 10; // Minimum size for visibility
+    
     canvas.width = cols * size; 
     canvas.height = rows * size;
     maze = Array.from({ length: rows }, () => Array(cols).fill(1));
 
-    function walk(x, y) {
-        maze[x][y] = 0;
-        const ds = [[0, 2], [0, -2], [2, 0], [-2, 0]].sort(() => seededRandom() - 0.5);
+    // 🏗️ ITERATIVE DFS (No recursion limits)
+    const stack = [{x: 1, y: 1}];
+    maze[1][1] = 0;
+    
+    while (stack.length > 0) {
+        const curr = stack[stack.length - 1];
+        const neighbors = [];
+        const ds = [[0, 2], [0, -2], [2, 0], [-2, 0]];
+        
         for (const [dx, dy] of ds) {
-            const nx = x + dx, ny = y + dy;
-            if (nx > 0 && nx < rows - 1 && ny > 0 && ny < cols - 1 && maze[nx][ny] === 1) { maze[x + dx / 2][y + dy / 2] = 0; walk(nx, ny); }
+            const nx = curr.x + dx, ny = curr.y + dy;
+            if (nx > 0 && nx < rows - 1 && ny > 0 && ny < cols - 1 && maze[nx][ny] === 1) {
+                neighbors.push({x: nx, y: ny, dx, dy});
+            }
+        }
+        
+        if (neighbors.length > 0) {
+            const next = neighbors[Math.floor(seededRandom() * neighbors.length)];
+            maze[next.x][next.y] = 0;
+            maze[curr.x + next.dx/2][curr.y + next.dy/2] = 0;
+            stack.push(next);
+        } else {
+            stack.pop();
         }
     }
-    walk(1, 1);
-    for (let i = 1; i < rows - 1; i++) { for (let j = 1; j < cols - 1; j++) { if (maze[i][j] === 1 && seededRandom() < config.shortcuts) maze[i][j] = 0; } }
-    maze[1][1] = 0; maze[rows - 2][cols - 2] = 0; player = { x: 1, y: 1 }; visualPlayer = { x: 1, y: 1 }; playerPath = [{ x: 1, y: 1 }]; updateStats(); drawMaze();
+
+    // Add some shortcuts for variety
+    for (let i = 1; i < rows - 1; i++) { 
+        for (let j = 1; j < cols - 1; j++) { 
+            if (maze[i][j] === 1 && seededRandom() < config.shortcuts) maze[i][j] = 0; 
+        } 
+    }
+    
+    // Ensure start/end are cleared
+    maze[1][1] = 0; 
+    maze[rows - 2][cols - 2] = 0; 
+
+    player = { x: 1, y: 1 }; 
+    visualPlayer = { x: 1, y: 1 }; 
+    playerPath = [{ x: 1, y: 1 }]; 
+    updateStats(); 
+    drawMaze();
 }
 
 function handleMove(nx, ny) {
@@ -421,7 +458,7 @@ function drawMaze() {
         }
     }
 
-    // 2. Draw Path
+    // 2. Draw Path with Glow
     const st = pathStyles[currentIcon] || pathStyles.default; 
     if (playerPath.length > 1) { 
         ctx.beginPath(); 
@@ -429,17 +466,23 @@ function drawMaze() {
         ctx.lineCap = "round"; 
         ctx.strokeStyle = st.path; 
         ctx.lineWidth = size * 0.5; 
+        
+        ctx.shadowColor = st.path;
+        ctx.shadowBlur = 10;
+        
         ctx.moveTo(playerPath[0].y * size + size / 2, playerPath[0].x * size + size / 2); 
         for (let k = 1; k < playerPath.length; k++) {
             ctx.lineTo(playerPath[k].y * size + size / 2, playerPath[k].x * size + size / 2); 
         }
         ctx.stroke(); 
+        ctx.shadowBlur = 0;
 
         // Draw path markers
+        const pulse = Math.abs(Math.sin(Date.now() / 300)) * 0.15;
         ctx.fillStyle = st.dot; 
         for (let n of playerPath) { 
             ctx.beginPath(); 
-            ctx.arc(n.y * size + size / 2, n.x * size + size / 2, Math.max(1, size * 0.1), 0, Math.PI * 2); 
+            ctx.arc(n.y * size + size / 2, n.x * size + size / 2, Math.max(1, size * (0.1 + pulse)), 0, Math.PI * 2); 
             ctx.fill(); 
         } 
     }
