@@ -412,7 +412,7 @@ const pathStyles = {
 };
 
 function drawMaze() {
-    if (!canvas || !ctx) return;
+    if (!canvas || !ctx || !maze || maze.length === 0) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     const bgs = { 
@@ -606,7 +606,8 @@ function animate() {
     requestAnimationFrame(animate); 
 }
 
-animate();
+// Start animation loop after complete initialization
+
 
 let resizeTimeout;
 window.addEventListener('resize', () => { 
@@ -624,3 +625,4 @@ window.addEventListener('resize', () => {
 });
 loadGame();
 switchTab('icons'); renderShop(); updateStats();
+animate();
