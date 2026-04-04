@@ -309,10 +309,11 @@ function generateMaze() {
     if (rows % 2 === 0) rows++; if (cols % 2 === 0) cols++; 
     rows = Math.min(rows, 41); cols = Math.min(cols, 41);
 
-    const cw = document.getElementById('gameContainer').clientWidth - 20; 
-    const mcs = Math.min(cw, 600, window.innerHeight * 0.45); // 🚀 Aggressive scaling for mobile fit
+    const cw = document.getElementById('gameContainer').clientWidth - 16; 
+    // MCS prioritizes fitting in height to avoid scrolling
+    const mcs = Math.min(cw, 500, window.innerHeight * 0.42); 
     size = Math.floor(mcs / Math.max(rows, cols)); 
-    if (size < 11) size = 11; // Optimization for visibility vs fit
+    if (size < 10) size = 10; 
     
     canvas.width = cols * size; 
     canvas.height = rows * size;

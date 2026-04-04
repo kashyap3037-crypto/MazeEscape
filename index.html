@@ -127,34 +127,17 @@
             <button onclick="openShop()" class="nav-btn">🎨 Shop</button>
         </nav>
 
-        <div class="stats">
-            <div class="stat-item">
-                <span class="stat-label">Lvl</span>
-                <div id="levelDisplay" class="stat-value">1</div>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Time ⏱</span>
-                <div id="timerDisplay" class="stat-value">00:00</div>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Steps 👣</span>
-                <div id="stepsDisplay" class="stat-value">0</div>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Score</span>
-                <div id="scoreDisplay" class="stat-value">0</div>
-            </div>
-            <div class="stat-item" style="grid-column: span 1;">
-                <span class="stat-label">Control</span>
-                <select id="controlModeSelect" onchange="setControlMode(this.value)" class="stat-select">
-                    <option value="swipe">Swipe</option>
-                    <option value="joystick">Joystick</option>
-                    <option value="buttons">Buttons</option>
+        <div class="stats compact-stats">
+            <div class="stat-item"><span class="stat-label">Lvl</span><div id="levelDisplay" class="stat-value">1</div></div>
+            <div class="stat-item"><span class="stat-label">Time</span><div id="timerDisplay" class="stat-value">00:00</div></div>
+            <div class="stat-item"><span class="stat-label">Steps</span><div id="stepsDisplay" class="stat-value">0</div></div>
+            <div class="stat-item"><span class="stat-label">🪙</span><div id="coinsDisplay" class="stat-value" style="color: #fbbf24;">0</div></div>
+            <div class="stat-item" style="grid-column: span 4;">
+                <select id="controlModeSelect" onchange="setControlMode(this.value)" class="stat-select" style="font-size: 0.6rem; padding: 2px;">
+                    <option value="swipe">Swipe Mode</option>
+                    <option value="joystick">Joystick Mode</option>
+                    <option value="buttons">Button Mode</option>
                 </select>
-            </div>
-            <div class="stat-item" style="grid-column: span 1;">
-                <span class="stat-label">Wallet 🪙</span>
-                <div id="coinsDisplay" class="stat-value" style="color: #fbbf24;">0</div>
             </div>
         </div>
 
