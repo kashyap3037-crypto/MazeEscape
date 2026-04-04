@@ -144,7 +144,15 @@
                 <span class="stat-label">Score</span>
                 <div id="scoreDisplay" class="stat-value">0</div>
             </div>
-            <div class="stat-item" style="grid-column: span 2;">
+            <div class="stat-item" style="grid-column: span 1;">
+                <span class="stat-label">Control</span>
+                <select id="controlModeSelect" onchange="setControlMode(this.value)" class="stat-select">
+                    <option value="swipe">Swipe</option>
+                    <option value="joystick">Joystick</option>
+                    <option value="buttons">Buttons</option>
+                </select>
+            </div>
+            <div class="stat-item" style="grid-column: span 1;">
                 <span class="stat-label">Wallet 🪙</span>
                 <div id="coinsDisplay" class="stat-value" style="color: #fbbf24;">0</div>
             </div>
@@ -153,7 +161,7 @@
         <canvas id="mazeCanvas"></canvas>
 
         <!-- 🕹️ MOBILE DIRECTIONAL PAD -->
-        <div class="mobile-controls">
+        <div id="controlPad" class="mobile-controls">
             <div class="control-row">
                 <button class="ctrl-btn" onclick="movePlayer(-1,0)">▲</button>
             </div>
@@ -164,6 +172,13 @@
             </div>
             <div class="control-row">
                 <button class="ctrl-btn" onclick="movePlayer(1,0)">▼</button>
+            </div>
+        </div>
+
+        <!-- 🕹️ VIRTUAL JOYSTICK -->
+        <div id="joystickOuter" class="joystick-container hidden">
+            <div id="joystickBase">
+                <div id="joystickStick"></div>
             </div>
         </div>
 

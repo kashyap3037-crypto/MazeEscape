@@ -19,6 +19,7 @@ let currentSkin = 'default';
 let currentTheme = 'default';
 let currentGoal = 'default';
 let currentShopTab = 'icons';
+let currentControlMode = 'swipe';
 
 let inventory = {
     icons: ['default'],
@@ -149,7 +150,7 @@ function seededRandom() {
 
 // 💾 LOCAL STORAGE
 function saveGame() {
-    const gameState = { progress, totalScore, coins, inventory, selections: { currentIcon, currentSkin, currentTheme, currentGoal } };
+    const gameState = { progress, totalScore, coins, inventory, selections: { currentIcon, currentSkin, currentTheme, currentGoal, currentControlMode } };
     localStorage.setItem('mazeEscapeSave', JSON.stringify(gameState));
 }
 
@@ -168,14 +169,34 @@ function loadGame() {
                 currentSkin = data.selections.currentSkin || 'default';
                 currentTheme = data.selections.currentTheme || 'default';
                 currentGoal = data.selections.currentGoal || 'default';
+                currentControlMode = data.selections.currentControlMode || 'swipe';
             }
             
             document.body.className = currentTheme === 'default' ? '' : `theme-${currentTheme}`;
+            if (document.getElementById('controlModeSelect')) document.getElementById('controlModeSelect').value = currentControlMode;
+            setControlMode(currentControlMode);
             updateStats(); renderShop();
         } catch(e) {
             console.error("Failed to load game:", e);
         }
     }
+}
+
+function setControlMode(mode) {
+    currentControlMode = mode;
+    const pad = document.getElementById('controlPad');
+    const joystick = document.getElementById('joystickOuter');
+    
+    if (pad) {
+        if (mode === 'buttons') pad.classList.add('active');
+        else pad.classList.remove('active');
+    }
+    
+    if (joystick) {
+        if (mode === 'joystick') joystick.classList.remove('hidden');
+        else joystick.classList.add('hidden');
+    }
+    saveGame();
 }
 
 // 🗺️ LEVEL MAP LOGIC
@@ -288,10 +309,10 @@ function generateMaze() {
     if (rows % 2 === 0) rows++; if (cols % 2 === 0) cols++; 
     rows = Math.min(rows, 41); cols = Math.min(cols, 41);
 
-    const cw = document.getElementById('gameContainer').clientWidth - 40; 
-    const mcs = Math.min(cw, 600, window.innerHeight * 0.6); 
+    const cw = document.getElementById('gameContainer').clientWidth - 30; 
+    const mcs = Math.min(cw, 600, window.innerHeight * 0.5); 
     size = Math.floor(mcs / Math.max(rows, cols)); 
-    if (size < 10) size = 10; // Minimum size for visibility
+    if (size < 12) size = 12; // Minimum size for better visibility on high-res displays
     
     canvas.width = cols * size; 
     canvas.height = rows * size;
@@ -556,6 +577,7 @@ document.addEventListener("touchmove", (e) => {
 }, { passive: false });
 
 document.addEventListener("touchend", (e) => {
+    if (currentControlMode !== 'swipe') return;
     const isGameVisible = !document.getElementById('gameContainer').classList.contains('hidden');
     const isMenuOpen = !document.getElementById('menuOverlay').classList.contains('hidden');
     const isShopOpen = !document.getElementById('shopOverlay').classList.contains('hidden');
@@ -571,14 +593,62 @@ document.addEventListener("touchend", (e) => {
 
     if (Math.max(absX, absY) > minDistance) {
         if (absX > absY) {
-            if (dx > 0) movePlayer(0, 1);   // right
-            else movePlayer(0, -1);          // left
+            if (dx > 0) movePlayer(0, 1);   
+            else movePlayer(0, -1);         
         } else {
-            if (dy > 0) movePlayer(1, 0);   // down
-            else movePlayer(-1, 0);          // up
+            if (dy > 0) movePlayer(1, 0);  
+            else movePlayer(-1, 0);         
         }
     }
 }, { passive: false });
+
+// 🕹️ JOYSTICK LOGIC
+const stick = document.getElementById('joystickStick');
+const base = document.getElementById('joystickBase');
+let joyActive = false, joyX = 0, joyY = 0, baseR = 65;
+
+if (base && stick) {
+    base.addEventListener('touchstart', (e) => { 
+        if (currentControlMode !== 'joystick') return;
+        joyActive = true; 
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!joyActive || currentControlMode !== 'joystick') return;
+        const rect = base.getBoundingClientRect();
+        const centerX = rect.left + baseR;
+        const centerY = rect.top + baseR;
+        const touch = e.touches[0];
+        
+        let dx = touch.clientX - centerX;
+        let dy = touch.clientY - centerY;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        const maxD = baseR - 20;
+
+        if (dist > maxD) { dx *= maxD/dist; dy *= maxD/dist; }
+        
+        stick.style.transform = `translate(${dx}px, ${dy}px)`;
+
+        // Trigger move if distance exceeded small threshold
+        if (dist > 30) {
+            const absX = Math.abs(dx), absY = Math.abs(dy);
+            if (absX > absY) {
+                if (dx > 30) movePlayer(0, 1);
+                else if (dx < -30) movePlayer(0, -1);
+            } else {
+                if (dy > 30) movePlayer(1, 0);
+                else if (dy < -30) movePlayer(-1, 0);
+            }
+            // Temporarily stop move detection until stick returns center or moves far enough again
+            joyActive = false; // Prevents spamming moves in one drag
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => {
+        joyActive = false;
+        stick.style.transform = `translate(0px, 0px)`;
+    });
+}
 
 document.addEventListener("keydown", (e) => {
     if (!document.getElementById('menuOverlay').classList.contains('hidden') || !document.getElementById('rewardOverlay').classList.contains('hidden') || !document.getElementById('shopOverlay').classList.contains('hidden') || !document.getElementById('levelSelectOverlay').classList.contains('hidden')) return;
