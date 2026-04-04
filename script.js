@@ -276,6 +276,7 @@ function renderShop() {
 function goHome() { 
     stopTimer(); 
     document.querySelectorAll('.overlay').forEach(ov => ov.classList.add('hidden')); 
+    document.getElementById('gameContainer').classList.add('hidden');
     document.getElementById('menuOverlay').classList.remove('hidden'); 
     updateStats(); 
 }
@@ -694,15 +695,7 @@ window.addEventListener('resize', () => {
         drawMaze();
     }, 200);
 });
-function goHome() {
-    // Hide all overlays
-    document.querySelectorAll('.overlay').forEach(ov => ov.classList.add('hidden'));
-    // Hide game container
-    document.getElementById('gameContainer').classList.add('hidden');
-    // Show main menu
-    document.getElementById('homepageOverlay').classList.remove('hidden');
-    stopTimer();
-}
+
 
 loadGame();
 switchTab('icons'); renderShop(); updateStats();
