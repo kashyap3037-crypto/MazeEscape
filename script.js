@@ -359,6 +359,10 @@ function handleMove(nx, ny) {
     return false;
 }
 
+function movePlayer(dx, dy) {
+    return handleMove(player.x + dx, player.y + dy);
+}
+
 function moveUntilWall(dx, dy) {
     let moved = false;
     let keepMoving = true;
@@ -458,7 +462,7 @@ function drawMaze() {
         }
     }
 
-    // 2. Draw Path with Glow
+    // 2. Draw Solid Path
     const st = pathStyles[currentIcon] || pathStyles.default; 
     if (playerPath.length > 1) { 
         ctx.beginPath(); 
@@ -467,22 +471,18 @@ function drawMaze() {
         ctx.strokeStyle = st.path; 
         ctx.lineWidth = size * 0.5; 
         
-        ctx.shadowColor = st.path;
-        ctx.shadowBlur = 10;
-        
         ctx.moveTo(playerPath[0].y * size + size / 2, playerPath[0].x * size + size / 2); 
         for (let k = 1; k < playerPath.length; k++) {
             ctx.lineTo(playerPath[k].y * size + size / 2, playerPath[k].x * size + size / 2); 
         }
         ctx.stroke(); 
-        ctx.shadowBlur = 0;
 
-        // Draw path markers
-        const pulse = Math.abs(Math.sin(Date.now() / 300)) * 0.15;
+        // Draw path dots
+        const pulse = Math.abs(Math.sin(Date.now() / 400)) * 0.12;
         ctx.fillStyle = st.dot; 
         for (let n of playerPath) { 
             ctx.beginPath(); 
-            ctx.arc(n.y * size + size / 2, n.x * size + size / 2, Math.max(1, size * (0.1 + pulse)), 0, Math.PI * 2); 
+            ctx.arc(n.y * size + size / 2, n.x * size + size / 2, Math.max(1, size * (0.09 + pulse)), 0, Math.PI * 2); 
             ctx.fill(); 
         } 
     }
@@ -571,11 +571,11 @@ document.addEventListener("touchend", (e) => {
 
     if (Math.max(absX, absY) > minDistance) {
         if (absX > absY) {
-            if (dx > 0) moveUntilWall(0, 1);   // right
-            else moveUntilWall(0, -1);          // left
+            if (dx > 0) movePlayer(0, 1);   // right
+            else movePlayer(0, -1);          // left
         } else {
-            if (dy > 0) moveUntilWall(1, 0);   // down
-            else moveUntilWall(-1, 0);          // up
+            if (dy > 0) movePlayer(1, 0);   // down
+            else movePlayer(-1, 0);          // up
         }
     }
 }, { passive: false });
@@ -583,10 +583,10 @@ document.addEventListener("touchend", (e) => {
 document.addEventListener("keydown", (e) => {
     if (!document.getElementById('menuOverlay').classList.contains('hidden') || !document.getElementById('rewardOverlay').classList.contains('hidden') || !document.getElementById('shopOverlay').classList.contains('hidden') || !document.getElementById('levelSelectOverlay').classList.contains('hidden')) return;
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) { e.preventDefault(); }
-    if (e.key === "ArrowUp") moveUntilWall(-1, 0);
-    else if (e.key === "ArrowDown") moveUntilWall(1, 0);
-    else if (e.key === "ArrowLeft") moveUntilWall(0, -1);
-    else if (e.key === "ArrowRight") moveUntilWall(0, 1);
+    if (e.key === "ArrowUp") movePlayer(-1, 0);
+    else if (e.key === "ArrowDown") movePlayer(1, 0);
+    else if (e.key === "ArrowLeft") movePlayer(0, -1);
+    else if (e.key === "ArrowRight") movePlayer(0, 1);
 });
 
 // Smoothing Visuals
