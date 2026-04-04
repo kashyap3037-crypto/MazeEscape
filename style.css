@@ -662,6 +662,8 @@ body.theme-cyber #mazeCanvas {
 @media (max-width: 800px) {
     .mobile-controls { 
         display: none; 
+        margin-top: 5px;
+        transform: scale(0.85); /* Slightly scale down for fit */
     }
     .mobile-controls.active {
         display: flex;
@@ -669,19 +671,25 @@ body.theme-cyber #mazeCanvas {
     .desktop-only { display: none !important; }
     
     .container-full {
-        padding: 5px;
-        justify-content: flex-start;
-        padding-top: 20px;
+        padding: 5px 8px;
+        justify-content: space-evenly;
+        height: 100vh;
+        height: -webkit-fill-available;
     }
     
     .stats {
-        gap: 6px;
-        margin-bottom: 10px;
+        gap: 4px;
+        margin-bottom: 5px;
+        padding: 0;
     }
 
     .stat-item {
-        padding: 8px 4px;
-        transform: scale(0.9);
+        padding: 6px 2px;
+        transform: scale(0.85);
+    }
+    
+    .game-nav {
+        margin-bottom: 5px;
     }
 }
 
