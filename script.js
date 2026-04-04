@@ -98,6 +98,30 @@ const shopItems = {
 
 let player = { x: 1, y: 1 };
 let playerPath = [{ x: 1, y: 1 }];
+// 🧩 Polyfill for roundRect (Older browsers/Mobile support)
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+        if (typeof r === 'undefined') r = 0;
+        if (typeof r === 'number') r = { tl: r, tr: r, br: r, bl: r };
+        else {
+            var defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
+            for (var key in defaultRadius) r[key] = r[key] || defaultRadius[key];
+        }
+        this.beginPath();
+        this.moveTo(x + r.tl, y);
+        this.lineTo(x + w - r.tr, y);
+        this.quadraticCurveTo(x + w, y, x + w, y + r.tr);
+        this.lineTo(x + w, y + h - r.br);
+        this.quadraticCurveTo(x + w, y + h, x + w - r.br, y + h);
+        this.lineTo(x + r.bl, y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - r.bl);
+        this.lineTo(x, y + r.tl);
+        this.quadraticCurveTo(x, y, x + r.tl, y);
+        this.closePath();
+        return this;
+    };
+}
+
 const canvas = document.getElementById("mazeCanvas");
 const ctx = canvas.getContext("2d");
 const levelDisplay = document.getElementById("levelDisplay");
@@ -132,17 +156,25 @@ function saveGame() {
 function loadGame() {
     const saved = localStorage.getItem('mazeEscapeSave');
     if (saved) {
-        const data = JSON.parse(saved);
-        progress = data.progress || progress;
-        totalScore = data.totalScore || 0;
-        coins = data.coins || 0;
-        inventory = data.inventory || inventory;
-        currentIcon = data.selections.currentIcon;
-        currentSkin = data.selections.currentSkin;
-        currentTheme = data.selections.currentTheme;
-        currentGoal = data.selections.currentGoal;
-        document.body.className = currentTheme === 'default' ? '' : `theme-${currentTheme}`;
-        updateStats(); renderShop();
+        try {
+            const data = JSON.parse(saved);
+            progress = data.progress || progress;
+            totalScore = data.totalScore || 0;
+            coins = data.coins || 0;
+            inventory = data.inventory || inventory;
+            
+            if (data.selections) {
+                currentIcon = data.selections.currentIcon || 'default';
+                currentSkin = data.selections.currentSkin || 'default';
+                currentTheme = data.selections.currentTheme || 'default';
+                currentGoal = data.selections.currentGoal || 'default';
+            }
+            
+            document.body.className = currentTheme === 'default' ? '' : `theme-${currentTheme}`;
+            updateStats(); renderShop();
+        } catch(e) {
+            console.error("Failed to load game:", e);
+        }
     }
 }
 
@@ -323,10 +355,40 @@ function moveUntilWall(dx, dy) {
     return moved;
 }
 
-function drawMaze() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const bgs = { default: '#0f172a', light: '#f8fafc', mint: '#f0fdf4', sand: '#fef3c7', lava: '#1a0b0b', fire: '#1a1110', cyber: '#020617', forest: '#064e3b', ice: '#f0f9ff', jungle: '#022c22', desert: '#451a03', paper: '#fffbeb', space: '#010409', fantasy: '#2e1065', dream: '#fdf4ff' }; ctx.fillStyle = bgs[currentTheme] || bgs.default; ctx.fillRect(0, 0, canvas.width, canvas.height);
+// Pre-calculated style objects for performance with better brightness
+const pathStyles = { 
+    default: { path: '#5eead4', dot: '#2dd4bf' }, 
+    leaf: { path: '#4ade80', dot: '#22c55e' }, 
+    butterfly: { path: '#f472b6', dot: '#ec4899' }, 
+    sun: { path: '#fde047', dot: '#eab308' }, 
+    star: { path: '#fcd34d', dot: '#fbbf24' }, 
+    spark: { path: '#ffffff', dot: '#cbd5e1' }, 
+    robot: { path: '#94a3b8', dot: '#475569' }, 
+    ghost: { path: 'rgba(255, 255, 255, 0.8)', dot: 'rgba(255, 255, 255, 0.4)' }, 
+    diamond: { path: '#22d3ee', dot: '#0891b2' }, 
+    fire: { path: '#f87171', dot: '#dc2626' }, 
+    ice: { path: '#7dd3fc', dot: '#0ea5e9' }, 
+    alien: { path: '#4ade80', dot: '#16a34a' }, 
+    galaxy: { path: '#818cf8', dot: '#3730a3' }, 
+    crown: { path: '#facc15', dot: '#ca8a04' }, 
+    phoenix: { path: '#ef4444', dot: '#991b1b' } 
+};
 
+function drawMaze() {
+    if (!canvas || !ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const bgs = { 
+        default: '#0f172a', light: '#f8fafc', mint: '#f0fdf4', sand: '#fef3c7', 
+        lava: '#1a0b0b', fire: '#1a1110', cyber: '#020617', forest: '#064e3b', 
+        ice: '#f0f9ff', jungle: '#022c22', desert: '#451a03', paper: '#fffbeb', 
+        space: '#010409', fantasy: '#2e1065', dream: '#fdf4ff' 
+    }; 
+    
+    ctx.fillStyle = bgs[currentTheme] || bgs.default; 
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Draw Walls
     const skin = shopItems.skins.find(s => s.id === currentSkin)?.style;
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
@@ -337,41 +399,72 @@ function drawMaze() {
                     let grad = ctx.createLinearGradient(x, y, x + size, y + size);
                     skin.gradient.forEach((c, idx) => grad.addColorStop(idx / (skin.gradient.length - 1), c));
                     ctx.fillStyle = grad;
-                } else { ctx.fillStyle = skin?.color || "#334155"; }
-                if (skin?.glow) { ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 15; }
+                } else { 
+                    ctx.fillStyle = skin?.color || "#334155"; 
+                }
+                
+                if (skin?.glow) { 
+                    ctx.shadowColor = ctx.fillStyle; 
+                    ctx.shadowBlur = 10; 
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                
                 if (skin?.opacity) ctx.globalAlpha = skin.opacity;
-                ctx.roundRect(x + 1, y + 1, size - 2, size - 2, size * 0.15);
+                
+                // Use a standard rect if roundRect fails or for better performance
+                ctx.roundRect(x + 1, y + 1, size - 2, size - 2, Math.max(1, size * 0.15));
                 ctx.fill();
-                ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+                ctx.shadowBlur = 0; 
+                ctx.globalAlpha = 1;
             }
         }
     }
-    const ics = { default: { path: '#409185', dot: '#66e1c8' }, leaf: { path: '#22c55e', dot: '#4ade80' }, butterfly: { path: '#ec4899', dot: '#f472b6' }, sun: { path: '#eab308', dot: '#fde047' }, star: { path: '#fbbf24', dot: '#fcd34d' }, spark: { path: '#94a3b8', dot: '#ffffff' }, robot: { path: '#475569', dot: '#94a3b8' }, ghost: { path: '#64748b', dot: 'rgba(255, 255, 255, 0.7)' }, diamond: { path: '#0891b2', dot: '#22d3ee' }, fire: { path: '#dc2626', dot: '#ef4444' }, ice: { path: '#0ea5e9', dot: '#bae6fd' }, alien: { path: '#16a34a', dot: '#4ade80' }, galaxy: { path: '#3730a3', dot: '#4338ca' }, crown: { path: '#ca8a04', dot: '#facc15' }, phoenix: { path: '#991b1b', dot: '#ef4444' } };
-    const st = ics[currentIcon] || ics.default; 
+
+    // 2. Draw Path
+    const st = pathStyles[currentIcon] || pathStyles.default; 
     if (playerPath.length > 1) { 
         ctx.beginPath(); 
         ctx.lineJoin = "round"; 
         ctx.lineCap = "round"; 
         ctx.strokeStyle = st.path; 
-        ctx.lineWidth = size * 0.6; // 🚀 Increased from 0.4 to 0.6 for better visibility
+        ctx.lineWidth = size * 0.5; 
         ctx.moveTo(playerPath[0].y * size + size / 2, playerPath[0].x * size + size / 2); 
-        for (let k = 1; k < playerPath.length; k++) 
+        for (let k = 1; k < playerPath.length; k++) {
             ctx.lineTo(playerPath[k].y * size + size / 2, playerPath[k].x * size + size / 2); 
+        }
         ctx.stroke(); 
+
+        // Draw path markers
         ctx.fillStyle = st.dot; 
         for (let n of playerPath) { 
             ctx.beginPath(); 
-            ctx.arc(n.y * size + size / 2, n.x * size + size / 2, size * 0.15, 0, Math.PI * 2); 
+            ctx.arc(n.y * size + size / 2, n.x * size + size / 2, Math.max(1, size * 0.1), 0, Math.PI * 2); 
             ctx.fill(); 
         } 
     }
-    const gx = (cols - 2) * size, gy = (rows - 2) * size; const gi = shopItems.goals.find(it => it.id === currentGoal); const ge = gi ? gi.preview : '🟡'; ctx.textAlign = "center"; ctx.textBaseline = "middle"; let p = 1 + Math.sin(Date.now() / 200) * 0.05; ctx.font = `${size * 0.7 * p}px Arial`; ctx.fillText(ge, gx + size / 2, gy + size / 2);
 
-    // Smooth Interpolation
-    visualPlayer.x += (player.x - visualPlayer.x) * 0.3;
-    visualPlayer.y += (player.y - visualPlayer.y) * 0.3;
+    // 3. Draw Goal
+    const gx = (cols - 2) * size, gy = (rows - 2) * size; 
+    const gi = shopItems.goals.find(it => it.id === currentGoal); 
+    const ge = gi ? gi.preview : '🟡'; 
+    ctx.textAlign = "center"; 
+    ctx.textBaseline = "middle"; 
+    let p = 1 + Math.sin(Date.now() / 250) * 0.08; 
+    ctx.font = `${size * 0.7 * p}px Arial`; 
+    ctx.fillText(ge, gx + size / 2, gy + size / 2);
 
-    const ii = shopItems.icons.find(it => it.id === currentIcon); const pe = ii ? ii.preview : '⚪'; const px = visualPlayer.y * size, py = visualPlayer.x * size; ctx.font = `${size * 0.8}px Arial`; ctx.fillText(pe, px + size / 2, py + size / 2);
+    // 5. Draw Player Icon
+    const ii = shopItems.icons.find(it => it.id === currentIcon); 
+    const pe = ii ? ii.preview : '⚪'; 
+    const px = visualPlayer.y * size, py = visualPlayer.x * size; 
+    
+    // Icon Shadow for better visibility
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 5;
+    ctx.font = `${Math.max(12, size * 0.85)}px Arial`; 
+    ctx.fillText(pe, px + size / 2, py + size / 2);
+    ctx.shadowBlur = 0;
 }
 
 function nextLevel() {
@@ -453,8 +546,38 @@ document.addEventListener("keydown", (e) => {
     else if (e.key === "ArrowRight") moveUntilWall(0, 1);
 });
 
-function animate() { drawMaze(); requestAnimationFrame(animate); }
+// Smoothing Visuals
+function updateVisuals() {
+    const smoothFactor = 0.22; // Slightly more responsive
+    visualPlayer.x += (player.x - visualPlayer.x) * smoothFactor;
+    visualPlayer.y += (player.y - visualPlayer.y) * smoothFactor;
+    
+    // Snapping to avoid infinite tiny updates
+    if (Math.abs(player.x - visualPlayer.x) < 0.001) visualPlayer.x = player.x;
+    if (Math.abs(player.y - visualPlayer.y) < 0.001) visualPlayer.y = player.y;
+}
+
+function animate() { 
+    updateVisuals();
+    drawMaze(); 
+    requestAnimationFrame(animate); 
+}
+
 animate();
-window.addEventListener('resize', () => { if (!document.getElementById('gameContainer').classList.contains('hidden')) generateMaze(); });
+
+let resizeTimeout;
+window.addEventListener('resize', () => { 
+    if (document.getElementById('gameContainer').classList.contains('hidden')) return;
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        // Only update size and redraw, don't re-generate the maze structure
+        const cw = document.getElementById('gameContainer').clientWidth - 40; 
+        const mcs = Math.min(cw, 600, window.innerHeight * 0.65);
+        size = Math.floor(mcs / Math.max(rows, cols)); 
+        canvas.width = cols * size; 
+        canvas.height = rows * size;
+        drawMaze();
+    }, 200);
+});
 loadGame();
 switchTab('icons'); renderShop(); updateStats();
